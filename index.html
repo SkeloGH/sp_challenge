@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Countdown timer</title>
+    <style>
+        @font-face {
+            font-family: "Novecentosanswide-Light";
+            src: url("./Novecentosanswide-Light.otf?") format('opentype');
+        }
+        @font-face {
+            font-family: "Roboto-Regular";
+            src: url("./Roboto-Regular.ttf") format('truetype');
+        }
+        * {box-sizing: border-box;}
+        body {
+            font-family: "Novecentosanswide-Light";
+        }
+        .container{
+            margin: 50px auto auto 50px;
+        }
+        .grid {
+            display: grid;
+            grid-auto-rows: minmax(79px, auto);
+            grid-gap: 14px;
+            grid-template-columns: repeat(4, 95px);
+        }
+        .col-1, .col-2, .col-3, .col-4 {
+            grid-row: 1;
+        }
+        .col-1 {
+            grid-column: 1;
+        }
+        .col-2 {
+            grid-column: 2;
+        }
+        .col-3 {
+            grid-column: 3;
+        }
+        .col-4 {
+            grid-column: 4;
+        }
+        .box {
+            align-items: center;
+            border: solid 1px #d6d7da;
+            border-radius: 3px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            text-align: center;
+        }
+
+        .box .main {
+            font-size: 2.3em;
+            line-height: 1.1em;
+            margin-top: -0.3em;
+        }
+
+        .box .secondary {
+            color: #ab9e9e;
+            font-family: "Roboto-Regular";
+            font-size: 0.85em;
+        }
+    </style>
+</head>
+<body>
+    <div id="container" class="container grid">
+        <div class="box col-1">
+            <div class="main" id="days_value">-</div>
+            <div class="secondary">Days</div>
+        </div>
+        <div class="box col-2">
+            <div class="main" id="hours_value">-</div>
+            <div class="secondary">Hours</div>
+        </div>
+        <div class="box col-3">
+            <div class="main" id="minutes_value">-</div>
+            <div class="secondary">Minutes</div>
+        </div>
+        <div class="box col-4">
+            <div class="main" id="seconds_value">-</div>
+            <div class="secondary">Seconds</div>
+        </div>
+    </div>
+    <script>
+        var UI = {
+            elements: {
+                days:    document.getElementById('days_value'),
+                hours:   document.getElementById('hours_value'),
+                minutes: document.getElementById('minutes_value'),
+                seconds: document.getElementById('seconds_value'),
+            }
+        }
+
+        function Countdown(config){
+            const MSEC    = 1000;
+            const SEC     = 60;
+            const MIN     = 60;
+            const HR      = 24;
+            const MS_DAYS = (MSEC * SEC * MIN * HR)
+            const MS_HOUR = (MSEC * SEC * MIN)
+            const MS_MINU = (MSEC * SEC)
+
+            this.days_left    = 0;
+            this.hours_left   = 0;
+            this.minutes_left = 0;
+            this.seconds_left = 0;
+            this.render       = config.onRender || function(){};
+            this.from_date    = config.from_date.getTime();
+
+            this.get_remaining = function(){
+                var now = new Date().getTime();
+                return this.from_date - now;
+            };
+
+            // @message Shameless copy-pasta from w3Schools, modularized
+            // @source https://www.w3schools.com/howto/howto_js_countdown.asp
+            this.start = function count(){
+                this.loop = setInterval(function() {
+                    var time_left = this.get_remaining();
+
+                    // Time calculations for days, hours, minutes and seconds
+                    this.days_left    = Math.floor(time_left / MS_DAYS);
+                    this.hours_left   = Math.floor((time_left % MS_DAYS) / MS_HOUR);
+                    this.minutes_left = Math.floor((time_left % MS_HOUR) / MS_MINU);
+                    this.seconds_left = Math.floor((time_left % MS_MINU) / MSEC);
+
+                    time_left < 0 && this.stop();
+
+                    this.render();
+                }.bind(this), MSEC);
+            }
+
+            this.stop = function stop(){
+                clearInterval(this.loop)
+                return false;
+            }
+
+            return this;
+        }
+
+        UI.counter = new Countdown({
+            days: 0,
+            hours: 0,
+            minutes: 0,
+            seconds: 0,
+            from_date: new Date("Mar 18, 2018 00:00:00"),
+            onRender: function(){
+                UI.elements.days.innerText    = this.days_left;
+                UI.elements.hours.innerText   = this.hours_left;
+                UI.elements.minutes.innerText = this.minutes_left;
+                UI.elements.seconds.innerText = this.seconds_left;
+            }
+        });
+
+        UI.counter.start()
+    </script>
+</body>
+</html>
